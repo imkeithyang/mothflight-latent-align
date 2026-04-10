@@ -1,0 +1,1078 @@
+{
+  "flower_recon_mode": "mean",
+  "overall": {
+    "num_samples": 656,
+    "flower_recon_mode": "mean",
+    "mass_accuracy": 0.9939024390243902,
+    "mass_probability_mean": 0.5000236630439758,
+    "spike_r2": 0.25670748949050903,
+    "cross_spike_r2": 0.25670748949050903,
+    "flower_r2": 0.7645246833562851,
+    "cross_flower_r2": 0.7645246833562851,
+    "flower_sequence_r2": 0.7481510937213898,
+    "cross_flower_sequence_r2": 0.7481510937213898,
+    "flower_mean_r2": 0.7645246833562851,
+    "cross_flower_mean_r2": 0.7645246833562851,
+    "ft_r2": 0.6345176100730896,
+    "ft_r2_per_channel": [
+      0.7780904918909073,
+      0.4705878496170044,
+      0.6453695595264435
+    ],
+    "flower_r2_per_channel": [
+      0.2393222451210022,
+      -0.05149662494659424
+    ],
+    "cross_flower_r2_per_channel": [
+      0.2393222451210022,
+      -0.05149662494659424
+    ],
+    "flower_sequence_r2_per_channel": [
+      0.2387559413909912,
+      -0.044461965560913086
+    ],
+    "cross_flower_sequence_r2_per_channel": [
+      0.2387559413909912,
+      -0.044461965560913086
+    ],
+    "flower_mean_r2_per_channel": [
+      0.2393222451210022,
+      -0.05149662494659424
+    ],
+    "cross_flower_mean_r2_per_channel": [
+      0.2393222451210022,
+      -0.05149662494659424
+    ]
+  },
+  "by_mass": {
+    "low": {
+      "num_samples": 328,
+      "flower_recon_mode": "mean",
+      "mass_accuracy": 0.9939024390243902,
+      "mass_probability_mean": 0.009637718088924885,
+      "spike_r2": 0.24243783950805664,
+      "cross_spike_r2": 0.24243783950805664,
+      "flower_r2": 0.7840889245271683,
+      "cross_flower_r2": 0.7840889245271683,
+      "flower_sequence_r2": 0.7672489285469055,
+      "cross_flower_sequence_r2": 0.7672489285469055,
+      "flower_mean_r2": 0.7840889245271683,
+      "cross_flower_mean_r2": 0.7840889245271683,
+      "ft_r2": 0.6914518177509308,
+      "ft_r2_per_channel": [
+        0.7523465007543564,
+        0.5929908156394958,
+        0.7407618463039398
+      ],
+      "flower_r2_per_channel": [
+        0.32814449071884155,
+        -0.06314980983734131
+      ],
+      "cross_flower_r2_per_channel": [
+        0.32814449071884155,
+        -0.06314980983734131
+      ],
+      "flower_sequence_r2_per_channel": [
+        0.32732588052749634,
+        -0.05415022373199463
+      ],
+      "cross_flower_sequence_r2_per_channel": [
+        0.32732588052749634,
+        -0.05415022373199463
+      ],
+      "flower_mean_r2_per_channel": [
+        0.32814449071884155,
+        -0.06314980983734131
+      ],
+      "cross_flower_mean_r2_per_channel": [
+        0.32814449071884155,
+        -0.06314980983734131
+      ]
+    },
+    "high": {
+      "num_samples": 328,
+      "flower_recon_mode": "mean",
+      "mass_accuracy": 0.9939024390243902,
+      "mass_probability_mean": 0.9904096722602844,
+      "spike_r2": 0.2677786946296692,
+      "cross_spike_r2": 0.2677786946296692,
+      "flower_r2": 0.7447004020214081,
+      "cross_flower_r2": 0.7447004020214081,
+      "flower_sequence_r2": 0.7287961542606354,
+      "cross_flower_sequence_r2": 0.7287961542606354,
+      "flower_mean_r2": 0.7447004020214081,
+      "cross_flower_mean_r2": 0.7447004020214081,
+      "ft_r2": 0.5594002604484558,
+      "ft_r2_per_channel": [
+        0.7950366288423538,
+        0.2727281451225281,
+        0.4730687141418457
+      ],
+      "flower_r2_per_channel": [
+        0.1574336290359497,
+        -0.04230940341949463
+      ],
+      "cross_flower_r2_per_channel": [
+        0.1574336290359497,
+        -0.04230940341949463
+      ],
+      "flower_sequence_r2_per_channel": [
+        0.15707993507385254,
+        -0.036756277084350586
+      ],
+      "cross_flower_sequence_r2_per_channel": [
+        0.15707993507385254,
+        -0.036756277084350586
+      ],
+      "flower_mean_r2_per_channel": [
+        0.1574336290359497,
+        -0.04230940341949463
+      ],
+      "cross_flower_mean_r2_per_channel": [
+        0.1574336290359497,
+        -0.04230940341949463
+      ]
+    }
+  },
+  "by_moth": {
+    "0": {
+      "overall": {
+        "num_samples": 98,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.4188803434371948,
+        "spike_r2": 0.267531156539917,
+        "cross_spike_r2": 0.267531156539917,
+        "flower_r2": 0.7508854866027832,
+        "cross_flower_r2": 0.7508854866027832,
+        "flower_sequence_r2": 0.7344297468662262,
+        "cross_flower_sequence_r2": 0.7344297468662262,
+        "flower_mean_r2": 0.7508854866027832,
+        "cross_flower_mean_r2": 0.7508854866027832,
+        "ft_r2": 0.4898669719696045,
+        "ft_r2_per_channel": [
+          0.005175411701202393,
+          0.24084508419036865,
+          0.13285231590270996
+        ],
+        "flower_r2_per_channel": [
+          -0.009821891784667969,
+          -0.03569173812866211
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.009821891784667969,
+          -0.03569173812866211
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.00978708267211914,
+          -0.03106379508972168
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.00978708267211914,
+          -0.03106379508972168
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.009821891784667969,
+          -0.03569173812866211
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.009821891784667969,
+          -0.03569173812866211
+        ]
+      },
+      "low": {
+        "num_samples": 57,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.0009427405311726034,
+        "spike_r2": 0.24892526865005493,
+        "cross_spike_r2": 0.24892526865005493,
+        "flower_r2": 0.7597780674695969,
+        "cross_flower_r2": 0.7597780674695969,
+        "flower_sequence_r2": 0.7446945309638977,
+        "cross_flower_sequence_r2": 0.7446945309638977,
+        "flower_mean_r2": 0.7597780674695969,
+        "cross_flower_mean_r2": 0.7597780674695969,
+        "ft_r2": 0.6033869683742523,
+        "ft_r2_per_channel": [
+          -0.4238142967224121,
+          -0.2782810926437378,
+          -0.03205907344818115
+        ],
+        "flower_r2_per_channel": [
+          -0.13761305809020996,
+          -0.06573545932769775
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.13761305809020996,
+          -0.06573545932769775
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.13699781894683838,
+          -0.05790674686431885
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.13699781894683838,
+          -0.05790674686431885
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.13761305809020996,
+          -0.06573545932769775
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.13761305809020996,
+          -0.06573545932769775
+        ]
+      },
+      "high": {
+        "num_samples": 41,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.9999154210090637,
+        "spike_r2": 0.28857874870300293,
+        "cross_spike_r2": 0.28857874870300293,
+        "flower_r2": 0.7347213327884674,
+        "cross_flower_r2": 0.7347213327884674,
+        "flower_sequence_r2": 0.7158815264701843,
+        "cross_flower_sequence_r2": 0.7158815264701843,
+        "flower_mean_r2": 0.7347213327884674,
+        "cross_flower_mean_r2": 0.7347213327884674,
+        "ft_r2": -0.0074155330657958984,
+        "ft_r2_per_channel": [
+          -0.11345994472503662,
+          -0.16426992416381836,
+          0.08816766738891602
+        ],
+        "flower_r2_per_channel": [
+          0.06912684440612793,
+          -0.030858278274536133
+        ],
+        "cross_flower_r2_per_channel": [
+          0.06912684440612793,
+          -0.030858278274536133
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.06893831491470337,
+          -0.026098966598510742
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.06893831491470337,
+          -0.026098966598510742
+        ],
+        "flower_mean_r2_per_channel": [
+          0.06912684440612793,
+          -0.030858278274536133
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.06912684440612793,
+          -0.030858278274536133
+        ]
+      }
+    },
+    "1": {
+      "overall": {
+        "num_samples": 87,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9885057471264368,
+        "mass_probability_mean": 0.5380698442459106,
+        "spike_r2": 0.1754397749900818,
+        "cross_spike_r2": 0.1754397749900818,
+        "flower_r2": 0.7676770240068436,
+        "cross_flower_r2": 0.7676770240068436,
+        "flower_sequence_r2": 0.7475059926509857,
+        "cross_flower_sequence_r2": 0.7475059926509857,
+        "flower_mean_r2": 0.7676770240068436,
+        "cross_flower_mean_r2": 0.7676770240068436,
+        "ft_r2": 0.4212701916694641,
+        "ft_r2_per_channel": [
+          -0.6473771333694458,
+          0.22387391328811646,
+          -0.4047631025314331
+        ],
+        "flower_r2_per_channel": [
+          -0.2740020751953125,
+          -0.046463847160339355
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.2740020751953125,
+          -0.046463847160339355
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.27326738834381104,
+          -0.03703963756561279
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.27326738834381104,
+          -0.03703963756561279
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.2740020751953125,
+          -0.046463847160339355
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.2740020751953125,
+          -0.046463847160339355
+        ]
+      },
+      "low": {
+        "num_samples": 39,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.0011418908834457397,
+        "spike_r2": 0.08773261308670044,
+        "cross_spike_r2": 0.08773261308670044,
+        "flower_r2": 0.8124836534261703,
+        "cross_flower_r2": 0.8124836534261703,
+        "flower_sequence_r2": 0.7842671871185303,
+        "cross_flower_sequence_r2": 0.7842671871185303,
+        "flower_mean_r2": 0.8124836534261703,
+        "cross_flower_mean_r2": 0.8124836534261703,
+        "ft_r2": 0.27627092599868774,
+        "ft_r2_per_channel": [
+          -0.25906240940093994,
+          -0.15652823448181152,
+          -0.4351065158843994
+        ],
+        "flower_r2_per_channel": [
+          0.1073036789894104,
+          -0.07760393619537354
+        ],
+        "cross_flower_r2_per_channel": [
+          0.1073036789894104,
+          -0.07760393619537354
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.10688716173171997,
+          -0.057770371437072754
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.10688716173171997,
+          -0.057770371437072754
+        ],
+        "flower_mean_r2_per_channel": [
+          0.1073036789894104,
+          -0.07760393619537354
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.1073036789894104,
+          -0.07760393619537354
+        ]
+      },
+      "high": {
+        "num_samples": 48,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9791666666666666,
+        "mass_probability_mean": 0.9743237495422363,
+        "spike_r2": 0.21445924043655396,
+        "cross_spike_r2": 0.21445924043655396,
+        "flower_r2": 0.7374328076839447,
+        "cross_flower_r2": 0.7374328076839447,
+        "flower_sequence_r2": 0.7222546339035034,
+        "cross_flower_sequence_r2": 0.7222546339035034,
+        "flower_mean_r2": 0.7374328076839447,
+        "cross_flower_mean_r2": 0.7374328076839447,
+        "ft_r2": 0.436126708984375,
+        "ft_r2_per_channel": [
+          -1.9590823650360107,
+          -0.08064401149749756,
+          -0.5330530405044556
+        ],
+        "flower_r2_per_channel": [
+          -0.5377795696258545,
+          -0.026874303817749023
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.5377795696258545,
+          -0.026874303817749023
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.5366476774215698,
+          -0.022462010383605957
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.5366476774215698,
+          -0.022462010383605957
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.5377795696258545,
+          -0.026874303817749023
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.5377795696258545,
+          -0.026874303817749023
+        ]
+      }
+    },
+    "2": {
+      "overall": {
+        "num_samples": 105,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9904761904761905,
+        "mass_probability_mean": 0.5469603538513184,
+        "spike_r2": 0.23349237442016602,
+        "cross_spike_r2": 0.23349237442016602,
+        "flower_r2": 0.8081501722335815,
+        "cross_flower_r2": 0.8081501722335815,
+        "flower_sequence_r2": 0.7960787862539291,
+        "cross_flower_sequence_r2": 0.7960787862539291,
+        "flower_mean_r2": 0.8081501722335815,
+        "cross_flower_mean_r2": 0.8081501722335815,
+        "ft_r2": 0.4459218978881836,
+        "ft_r2_per_channel": [
+          0.17338889837265015,
+          0.2951121926307678,
+          0.3603058457374573
+        ],
+        "flower_r2_per_channel": [
+          0.6272512078285217,
+          -0.04311561584472656
+        ],
+        "cross_flower_r2_per_channel": [
+          0.6272512078285217,
+          -0.04311561584472656
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.6254697442054749,
+          -0.03920114040374756
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.6254697442054749,
+          -0.03920114040374756
+        ],
+        "flower_mean_r2_per_channel": [
+          0.6272512078285217,
+          -0.04311561584472656
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.6272512078285217,
+          -0.04311561584472656
+        ]
+      },
+      "low": {
+        "num_samples": 49,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9795918367346939,
+        "mass_probability_mean": 0.02951751835644245,
+        "spike_r2": 0.14266318082809448,
+        "cross_spike_r2": 0.14266318082809448,
+        "flower_r2": 0.8440940678119659,
+        "cross_flower_r2": 0.8440940678119659,
+        "flower_sequence_r2": 0.8314207792282104,
+        "cross_flower_sequence_r2": 0.8314207792282104,
+        "flower_mean_r2": 0.8440940678119659,
+        "cross_flower_mean_r2": 0.8440940678119659,
+        "ft_r2": 0.43026089668273926,
+        "ft_r2_per_channel": [
+          -0.9766331911087036,
+          0.27308011054992676,
+          -0.3849167823791504
+        ],
+        "flower_r2_per_channel": [
+          0.6608163416385651,
+          -0.07592785358428955
+        ],
+        "cross_flower_r2_per_channel": [
+          0.6608163416385651,
+          -0.07592785358428955
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.6591105759143829,
+          -0.06728160381317139
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.6591105759143829,
+          -0.06728160381317139
+        ],
+        "flower_mean_r2_per_channel": [
+          0.6608163416385651,
+          -0.07592785358428955
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.6608163416385651,
+          -0.07592785358428955
+        ]
+      },
+      "high": {
+        "num_samples": 56,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.9997227787971497,
+        "spike_r2": 0.30831629037857056,
+        "cross_spike_r2": 0.30831629037857056,
+        "flower_r2": 0.7656227350234985,
+        "cross_flower_r2": 0.7656227350234985,
+        "flower_sequence_r2": 0.7541147023439407,
+        "cross_flower_sequence_r2": 0.7541147023439407,
+        "flower_mean_r2": 0.7656227350234985,
+        "cross_flower_mean_r2": 0.7656227350234985,
+        "ft_r2": 0.38378041982650757,
+        "ft_r2_per_channel": [
+          -0.4497106075286865,
+          0.0019980669021606445,
+          -0.19577515125274658
+        ],
+        "flower_r2_per_channel": [
+          0.4856070876121521,
+          -0.02028059959411621
+        ],
+        "cross_flower_r2_per_channel": [
+          0.4856070876121521,
+          -0.02028059959411621
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.4837036728858948,
+          -0.018780946731567383
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.4837036728858948,
+          -0.018780946731567383
+        ],
+        "flower_mean_r2_per_channel": [
+          0.4856070876121521,
+          -0.02028059959411621
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.4856070876121521,
+          -0.02028059959411621
+        ]
+      }
+    },
+    "3": {
+      "overall": {
+        "num_samples": 79,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9746835443037974,
+        "mass_probability_mean": 0.5410264134407043,
+        "spike_r2": 0.3473625183105469,
+        "cross_spike_r2": 0.3473625183105469,
+        "flower_r2": 0.7945553362369537,
+        "cross_flower_r2": 0.7945553362369537,
+        "flower_sequence_r2": 0.7744743227958679,
+        "cross_flower_sequence_r2": 0.7744743227958679,
+        "flower_mean_r2": 0.7945553362369537,
+        "cross_flower_mean_r2": 0.7945553362369537,
+        "ft_r2": 0.790209099650383,
+        "ft_r2_per_channel": [
+          0.12319886684417725,
+          0.13957852125167847,
+          0.2809078097343445
+        ],
+        "flower_r2_per_channel": [
+          -0.020696043968200684,
+          -0.1847825050354004
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.020696043968200684,
+          -0.1847825050354004
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.02063441276550293,
+          -0.1470632553100586
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.02063441276550293,
+          -0.1470632553100586
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.020696043968200684,
+          -0.1847825050354004
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.020696043968200684,
+          -0.1847825050354004
+        ]
+      },
+      "low": {
+        "num_samples": 36,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9722222222222222,
+        "mass_probability_mean": 0.035943690687417984,
+        "spike_r2": 0.4508529305458069,
+        "cross_spike_r2": 0.4508529305458069,
+        "flower_r2": 0.806407630443573,
+        "cross_flower_r2": 0.806407630443573,
+        "flower_sequence_r2": 0.7861288189888,
+        "cross_flower_sequence_r2": 0.7861288189888,
+        "flower_mean_r2": 0.806407630443573,
+        "cross_flower_mean_r2": 0.806407630443573,
+        "ft_r2": 0.833334743976593,
+        "ft_r2_per_channel": [
+          -0.14890694618225098,
+          -0.11350274085998535,
+          0.12588077783584595
+        ],
+        "flower_r2_per_channel": [
+          -0.22108423709869385,
+          -0.28065037727355957
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.22108423709869385,
+          -0.28065037727355957
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.22024285793304443,
+          -0.2167590856552124
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.22024285793304443,
+          -0.2167590856552124
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.22108423709869385,
+          -0.28065037727355957
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.22108423709869385,
+          -0.28065037727355957
+        ]
+      },
+      "high": {
+        "num_samples": 43,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 0.9767441860465116,
+        "mass_probability_mean": 0.9638864994049072,
+        "spike_r2": 0.25340789556503296,
+        "cross_spike_r2": 0.25340789556503296,
+        "flower_r2": 0.7850129306316376,
+        "cross_flower_r2": 0.7850129306316376,
+        "flower_sequence_r2": 0.7650482505559921,
+        "cross_flower_sequence_r2": 0.7650482505559921,
+        "flower_mean_r2": 0.7850129306316376,
+        "cross_flower_mean_r2": 0.7850129306316376,
+        "ft_r2": 0.7184497714042664,
+        "ft_r2_per_channel": [
+          0.020534396171569824,
+          -0.008434295654296875,
+          0.20790386199951172
+        ],
+        "flower_r2_per_channel": [
+          0.06688636541366577,
+          -0.13629150390625
+        ],
+        "cross_flower_r2_per_channel": [
+          0.06688636541366577,
+          -0.13629150390625
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.06671303510665894,
+          -0.11031603813171387
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.06671303510665894,
+          -0.11031603813171387
+        ],
+        "flower_mean_r2_per_channel": [
+          0.06688636541366577,
+          -0.13629150390625
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.06688636541366577,
+          -0.13629150390625
+        ]
+      }
+    },
+    "4": {
+      "overall": {
+        "num_samples": 88,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.4781176745891571,
+        "spike_r2": 0.279798686504364,
+        "cross_spike_r2": 0.279798686504364,
+        "flower_r2": 0.6074212193489075,
+        "cross_flower_r2": 0.6074212193489075,
+        "flower_sequence_r2": 0.5858226120471954,
+        "cross_flower_sequence_r2": 0.5858226120471954,
+        "flower_mean_r2": 0.6074212193489075,
+        "cross_flower_mean_r2": 0.6074212193489075,
+        "ft_r2": 0.7232650816440582,
+        "ft_r2_per_channel": [
+          -0.11124491691589355,
+          0.6755037307739258,
+          -0.0017026662826538086
+        ],
+        "flower_r2_per_channel": [
+          0.13075101375579834,
+          -0.11265027523040771
+        ],
+        "cross_flower_r2_per_channel": [
+          0.13075101375579834,
+          -0.11265027523040771
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.13043087720870972,
+          -0.0948183536529541
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.13043087720870972,
+          -0.0948183536529541
+        ],
+        "flower_mean_r2_per_channel": [
+          0.13075101375579834,
+          -0.11265027523040771
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.13075101375579834,
+          -0.11265027523040771
+        ]
+      },
+      "low": {
+        "num_samples": 46,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.0029520969837903976,
+        "spike_r2": 0.1733056902885437,
+        "cross_spike_r2": 0.1733056902885437,
+        "flower_r2": 0.666608452796936,
+        "cross_flower_r2": 0.666608452796936,
+        "flower_sequence_r2": 0.6451752781867981,
+        "cross_flower_sequence_r2": 0.6451752781867981,
+        "flower_mean_r2": 0.666608452796936,
+        "cross_flower_mean_r2": 0.666608452796936,
+        "ft_r2": 0.7356331944465637,
+        "ft_r2_per_channel": [
+          -0.4182623624801636,
+          0.08381688594818115,
+          -0.17503929138183594
+        ],
+        "flower_r2_per_channel": [
+          0.1981082558631897,
+          -0.16883838176727295
+        ],
+        "cross_flower_r2_per_channel": [
+          0.1981082558631897,
+          -0.16883838176727295
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.19762039184570312,
+          -0.1395714282989502
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.19762039184570312,
+          -0.1395714282989502
+        ],
+        "flower_mean_r2_per_channel": [
+          0.1981082558631897,
+          -0.16883838176727295
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.1981082558631897,
+          -0.16883838176727295
+        ]
+      },
+      "high": {
+        "num_samples": 42,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.9985372424125671,
+        "spike_r2": 0.39069509506225586,
+        "cross_spike_r2": 0.39069509506225586,
+        "flower_r2": 0.5376823842525482,
+        "cross_flower_r2": 0.5376823842525482,
+        "flower_sequence_r2": 0.5163565874099731,
+        "cross_flower_sequence_r2": 0.5163565874099731,
+        "flower_mean_r2": 0.5376823842525482,
+        "cross_flower_mean_r2": 0.5376823842525482,
+        "ft_r2": 0.585307389497757,
+        "ft_r2_per_channel": [
+          -0.018578290939331055,
+          0.14469927549362183,
+          0.10255438089370728
+        ],
+        "flower_r2_per_channel": [
+          0.015926063060760498,
+          -0.07740592956542969
+        ],
+        "cross_flower_r2_per_channel": [
+          0.015926063060760498,
+          -0.07740592956542969
+        ],
+        "flower_sequence_r2_per_channel": [
+          0.015885114669799805,
+          -0.06597959995269775
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          0.015885114669799805,
+          -0.06597959995269775
+        ],
+        "flower_mean_r2_per_channel": [
+          0.015926063060760498,
+          -0.07740592956542969
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          0.015926063060760498,
+          -0.07740592956542969
+        ]
+      }
+    },
+    "5": {
+      "overall": {
+        "num_samples": 106,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.48181861639022827,
+        "spike_r2": 0.2564314007759094,
+        "cross_spike_r2": 0.2564314007759094,
+        "flower_r2": 0.7251136004924774,
+        "cross_flower_r2": 0.7251136004924774,
+        "flower_sequence_r2": 0.708526611328125,
+        "cross_flower_sequence_r2": 0.708526611328125,
+        "flower_mean_r2": 0.7251136004924774,
+        "cross_flower_mean_r2": 0.7251136004924774,
+        "ft_r2": 0.28667110204696655,
+        "ft_r2_per_channel": [
+          0.15060877799987793,
+          0.13610327243804932,
+          0.336112916469574
+        ],
+        "flower_r2_per_channel": [
+          -0.1260436773300171,
+          -0.08037614822387695
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.1260436773300171,
+          -0.08037614822387695
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.1256098747253418,
+          -0.07042920589447021
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.1256098747253418,
+          -0.07042920589447021
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.1260436773300171,
+          -0.08037614822387695
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.1260436773300171,
+          -0.08037614822387695
+        ]
+      },
+      "low": {
+        "num_samples": 55,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.001419672742486,
+        "spike_r2": 0.28342896699905396,
+        "cross_spike_r2": 0.28342896699905396,
+        "flower_r2": 0.7242964506149292,
+        "cross_flower_r2": 0.7242964506149292,
+        "flower_sequence_r2": 0.7080236673355103,
+        "cross_flower_sequence_r2": 0.7080236673355103,
+        "flower_mean_r2": 0.7242964506149292,
+        "cross_flower_mean_r2": 0.7242964506149292,
+        "ft_r2": 0.19194626808166504,
+        "ft_r2_per_channel": [
+          -0.10051023960113525,
+          -0.18227124214172363,
+          -0.47223782539367676
+        ],
+        "flower_r2_per_channel": [
+          -0.04592239856719971,
+          -0.08572089672088623
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.04592239856719971,
+          -0.08572089672088623
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.0457381010055542,
+          -0.07600069046020508
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.0457381010055542,
+          -0.07600069046020508
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.04592239856719971,
+          -0.08572089672088623
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.04592239856719971,
+          -0.08572089672088623
+        ]
+      },
+      "high": {
+        "num_samples": 51,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.9998959302902222,
+        "spike_r2": 0.23167216777801514,
+        "cross_spike_r2": 0.23167216777801514,
+        "flower_r2": 0.7229984998703003,
+        "cross_flower_r2": 0.7229984998703003,
+        "flower_sequence_r2": 0.7059982419013977,
+        "cross_flower_sequence_r2": 0.7059982419013977,
+        "flower_mean_r2": 0.7229984998703003,
+        "cross_flower_mean_r2": 0.7229984998703003,
+        "ft_r2": 0.2158936858177185,
+        "ft_r2_per_channel": [
+          -0.1497209072113037,
+          -0.20724749565124512,
+          -0.17645156383514404
+        ],
+        "flower_r2_per_channel": [
+          -0.32747721672058105,
+          -0.09011495113372803
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.32747721672058105,
+          -0.09011495113372803
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.32639503479003906,
+          -0.07776212692260742
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.32639503479003906,
+          -0.07776212692260742
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.32747721672058105,
+          -0.09011495113372803
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.32747721672058105,
+          -0.09011495113372803
+        ]
+      }
+    },
+    "6": {
+      "overall": {
+        "num_samples": 93,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.5035930871963501,
+        "spike_r2": 0.25722235441207886,
+        "cross_spike_r2": 0.25722235441207886,
+        "flower_r2": 0.8025850057601929,
+        "cross_flower_r2": 0.8025850057601929,
+        "flower_sequence_r2": 0.793287992477417,
+        "cross_flower_sequence_r2": 0.793287992477417,
+        "flower_mean_r2": 0.8025850057601929,
+        "cross_flower_mean_r2": 0.8025850057601929,
+        "ft_r2": 0.6939264237880707,
+        "ft_r2_per_channel": [
+          -0.4490320682525635,
+          -0.03256583213806152,
+          -0.06465697288513184
+        ],
+        "flower_r2_per_channel": [
+          -0.10824692249298096,
+          -0.021118760108947754
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.10824692249298096,
+          -0.021118760108947754
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.10800814628601074,
+          -0.01908242702484131
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.10800814628601074,
+          -0.01908242702484131
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.10824692249298096,
+          -0.021118760108947754
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.10824692249298096,
+          -0.021118760108947754
+        ]
+      },
+      "low": {
+        "num_samples": 46,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.002362860832363367,
+        "spike_r2": 0.2873342037200928,
+        "cross_spike_r2": 0.2873342037200928,
+        "flower_r2": 0.7978743016719818,
+        "cross_flower_r2": 0.7978743016719818,
+        "flower_sequence_r2": 0.7885263711214066,
+        "cross_flower_sequence_r2": 0.7885263711214066,
+        "flower_mean_r2": 0.7978743016719818,
+        "cross_flower_mean_r2": 0.7978743016719818,
+        "ft_r2": 0.7165439426898956,
+        "ft_r2_per_channel": [
+          -0.43404340744018555,
+          -0.03991687297821045,
+          -0.3593618869781494
+        ],
+        "flower_r2_per_channel": [
+          -0.022737741470336914,
+          -0.010852575302124023
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.022737741470336914,
+          -0.010852575302124023
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.022693991661071777,
+          -0.009806513786315918
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.022693991661071777,
+          -0.009806513786315918
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.022737741470336914,
+          -0.010852575302124023
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.022737741470336914,
+          -0.010852575302124023
+        ]
+      },
+      "high": {
+        "num_samples": 47,
+        "flower_recon_mode": "mean",
+        "mass_accuracy": 1.0,
+        "mass_probability_mean": 0.9941588044166565,
+        "spike_r2": 0.2308903932571411,
+        "cross_spike_r2": 0.2308903932571411,
+        "flower_r2": 0.8067552745342255,
+        "cross_flower_r2": 0.8067552745342255,
+        "flower_sequence_r2": 0.797502264380455,
+        "cross_flower_sequence_r2": 0.797502264380455,
+        "flower_mean_r2": 0.8067552745342255,
+        "cross_flower_mean_r2": 0.8067552745342255,
+        "ft_r2": 0.6678657531738281,
+        "ft_r2_per_channel": [
+          -0.4890127182006836,
+          -0.09278273582458496,
+          0.01042032241821289
+        ],
+        "flower_r2_per_channel": [
+          -0.23682105541229248,
+          -0.0313798189163208
+        ],
+        "cross_flower_r2_per_channel": [
+          -0.23682105541229248,
+          -0.0313798189163208
+        ],
+        "flower_sequence_r2_per_channel": [
+          -0.2362079620361328,
+          -0.028350830078125
+        ],
+        "cross_flower_sequence_r2_per_channel": [
+          -0.2362079620361328,
+          -0.028350830078125
+        ],
+        "flower_mean_r2_per_channel": [
+          -0.23682105541229248,
+          -0.0313798189163208
+        ],
+        "cross_flower_mean_r2_per_channel": [
+          -0.23682105541229248,
+          -0.0313798189163208
+        ]
+      }
+    }
+  },
+  "num_test_samples": 656
+}

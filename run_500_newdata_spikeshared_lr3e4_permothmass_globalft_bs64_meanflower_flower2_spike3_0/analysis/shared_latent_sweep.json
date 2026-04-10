@@ -1,0 +1,256 @@
+{
+  "shared_latent_dim": 2,
+  "spike_latent_dim": 3,
+  "steps": 11,
+  "percentile_low": 1.0,
+  "percentile_high": 99.0,
+  "absolute_max": null,
+  "flower_recon_mode": "mean",
+  "per_moth": {
+    "0": {
+      "references": [
+        {
+          "split": "low",
+          "index": 64,
+          "mass": 0.0,
+          "moth_id": 0,
+          "spike_latent": [
+            -1.5120104551315308,
+            1.1426420211791992,
+            -8.164363861083984
+          ]
+        },
+        {
+          "split": "high",
+          "index": 615,
+          "mass": 1.0,
+          "moth_id": 0,
+          "spike_latent": [
+            -0.06067619472742081,
+            0.8384231328964233,
+            12.68227767944336
+          ]
+        }
+      ],
+      "shared_low": [
+        -2.2113614082336426,
+        -0.03712649643421173
+      ],
+      "shared_high": [
+        1.0764405727386475,
+        1.8834360837936401
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_0_shared_latent_sweep.gif"
+    },
+    "1": {
+      "references": [
+        {
+          "split": "low",
+          "index": 165,
+          "mass": 0.0,
+          "moth_id": 1,
+          "spike_latent": [
+            1.6245685815811157,
+            0.06136385351419449,
+            -6.585516452789307
+          ]
+        },
+        {
+          "split": "high",
+          "index": 471,
+          "mass": 1.0,
+          "moth_id": 1,
+          "spike_latent": [
+            1.0563249588012695,
+            0.43633201718330383,
+            9.510826110839844
+          ]
+        }
+      ],
+      "shared_low": [
+        -0.005461178254336119,
+        -0.5126168727874756
+      ],
+      "shared_high": [
+        2.1027300357818604,
+        0.9707673788070679
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_1_shared_latent_sweep.gif"
+    },
+    "2": {
+      "references": [
+        {
+          "split": "low",
+          "index": 106,
+          "mass": 0.0,
+          "moth_id": 2,
+          "spike_latent": [
+            -2.7230963706970215,
+            1.6277351379394531,
+            -8.319735527038574
+          ]
+        },
+        {
+          "split": "high",
+          "index": 518,
+          "mass": 1.0,
+          "moth_id": 2,
+          "spike_latent": [
+            0.49825727939605713,
+            0.6766775250434875,
+            12.749603271484375
+          ]
+        }
+      ],
+      "shared_low": [
+        -3.7329156398773193,
+        -0.07376863807439804
+      ],
+      "shared_high": [
+        1.3462471961975098,
+        2.6036853790283203
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_2_shared_latent_sweep.gif"
+    },
+    "3": {
+      "references": [
+        {
+          "split": "low",
+          "index": 130,
+          "mass": 0.0,
+          "moth_id": 3,
+          "spike_latent": [
+            1.4868121147155762,
+            0.31703460216522217,
+            -6.892089366912842
+          ]
+        },
+        {
+          "split": "high",
+          "index": 639,
+          "mass": 1.0,
+          "moth_id": 3,
+          "spike_latent": [
+            1.0214803218841553,
+            0.471232533454895,
+            3.5480074882507324
+          ]
+        }
+      ],
+      "shared_low": [
+        0.23617245256900787,
+        -0.3518119752407074
+      ],
+      "shared_high": [
+        2.5212507247924805,
+        1.0085597038269043
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_3_shared_latent_sweep.gif"
+    },
+    "4": {
+      "references": [
+        {
+          "split": "low",
+          "index": 72,
+          "mass": 0.0,
+          "moth_id": 4,
+          "spike_latent": [
+            0.24671408534049988,
+            0.5102941393852234,
+            -6.169771194458008
+          ]
+        },
+        {
+          "split": "high",
+          "index": 647,
+          "mass": 1.0,
+          "moth_id": 4,
+          "spike_latent": [
+            0.885585606098175,
+            -0.8473528623580933,
+            7.695986270904541
+          ]
+        }
+      ],
+      "shared_low": [
+        -0.7196249961853027,
+        -1.0440051555633545
+      ],
+      "shared_high": [
+        1.4483850002288818,
+        0.9407867789268494
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_4_shared_latent_sweep.gif"
+    },
+    "5": {
+      "references": [
+        {
+          "split": "low",
+          "index": 74,
+          "mass": 0.0,
+          "moth_id": 5,
+          "spike_latent": [
+            1.753314733505249,
+            -0.9761255979537964,
+            -5.660112380981445
+          ]
+        },
+        {
+          "split": "high",
+          "index": 332,
+          "mass": 1.0,
+          "moth_id": 5,
+          "spike_latent": [
+            1.015169620513916,
+            0.1172434464097023,
+            11.866613388061523
+          ]
+        }
+      ],
+      "shared_low": [
+        -0.02499919757246971,
+        -1.57225501537323
+      ],
+      "shared_high": [
+        2.4420325756073,
+        0.48712703585624695
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_5_shared_latent_sweep.gif"
+    },
+    "6": {
+      "references": [
+        {
+          "split": "low",
+          "index": 61,
+          "mass": 0.0,
+          "moth_id": 6,
+          "spike_latent": [
+            -2.4771316051483154,
+            0.911302924156189,
+            -8.231168746948242
+          ]
+        },
+        {
+          "split": "high",
+          "index": 417,
+          "mass": 1.0,
+          "moth_id": 6,
+          "spike_latent": [
+            -2.0250117778778076,
+            0.9938801527023315,
+            10.442340850830078
+          ]
+        }
+      ],
+      "shared_low": [
+        -2.999358654022217,
+        0.35590943694114685
+      ],
+      "shared_high": [
+        -1.1078684329986572,
+        1.595764398574829
+      ],
+      "gif_path": "run_500_newdata_spikeshared_lr3e4_permothmass_globalft_bs64_meanflower_flower2_spike3_0/analysis/shared_latent_sweep_by_moth/moth_6_shared_latent_sweep.gif"
+    }
+  }
+}
