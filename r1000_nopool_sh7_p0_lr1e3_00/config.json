@@ -1,0 +1,46 @@
+{
+    "seed": 0,
+    "data_seed": 0,
+    "device": "cuda:2",
+    "filepath_high": "/hpc/group/tarokhlab/hy190/data/fatmoth_filtered/fatmoth_HIGH.pickle",
+    "filepath_low": "/hpc/group/tarokhlab/hy190/data/fatmoth_filtered/fatmoth_LOW.pickle",
+    "batch_size": 64,
+    "convolution": "gaussian",
+    "split": 0.8,
+    "ft_norm_mode": "global",
+    "ft_predictor_mode": "per_moth_mass",
+    "flower_recon_mode": "mean",
+    "flower_decoder_latent_source": "spike_shared",
+    "model_architecture": "variational_no_pooling",
+    "latent_sweep_steps": 11,
+    "latent_sweep_percentile_low": 1.0,
+    "latent_sweep_percentile_high": 99.0,
+    "latent_sweep_max": null,
+    "d_model": 64,
+    "d_latent": 1,
+    "spike_latent_dim": 3,
+    "d_latent_share": 7,
+    "d_latent_treat": 0,
+    "dropout": 0.1,
+    "n_heads": 4,
+    "d_ff": 64,
+    "e_layers": 2,
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "spike_decoder_lr": 0.001,
+    "save_path": "/hpc/home/hy190/MURI/projects/mothtethered/mothflight_latent_align/r1000_nopool_sh7_p0_lr1e3_00",
+    "n_epochs": 1000,
+    "eval_every_n_epoch": 5,
+    "covariate_dims": [
+        400,
+        1
+    ],
+    "ft_dims": [
+        3
+    ],
+    "spike_dims": [
+        400,
+        10
+    ],
+    "moth_number": 10
+}

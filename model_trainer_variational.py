@@ -1,14 +1,23 @@
 import torch
-import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from tqdm.auto import tqdm
 
-import models_variational as models
-from MFT_dataset import get_MFT
+import models_variational as pooled_models
+import models_variational_no_pooling as no_pooling_models
+
+
+def _get_model_module(args):
+    architecture = getattr(args, "model_architecture", "variational")
+    if architecture == "variational":
+        return pooled_models
+    if architecture == "variational_no_pooling":
+        return no_pooling_models
+    raise ValueError(f"Unknown model_architecture: {architecture}")
 
 
 def get_model_and_optimizer(args):
+    models = _get_model_module(args)
     model = models.Transformer_TAR_net(covariate_dims=args.covariate_dims, 
           ft_dims=args.ft_dims, 
           spike_dims=args.spike_dims, 
@@ -23,11 +32,24 @@ def get_model_and_optimizer(args):
           d_ff=args.d_ff, 
           e_layers=args.e_layers, 
           device=args.device,
-          ft_predictor_mode=getattr(args, "ft_predictor_mode", "shared_shift"),
-          flower_recon_mode=getattr(args, "flower_recon_mode", "sequence"),
-          flower_decoder_latent_source=getattr(args, "flower_decoder_latent_source", "shared"))
-    
-    optimizer = getattr(optim, args.optimizer)([{'params': model.parameters(), 'lr': args.lr}],eps=1e-5)
+          ft_predictor_mode=getattr(args, "ft_predictor_mode", "per_moth_mass"),
+          flower_recon_mode=getattr(args, "flower_recon_mode", "mean"),
+          flower_decoder_latent_source=getattr(args, "flower_decoder_latent_source", "spike_shared"))
+
+    architecture = getattr(args, "model_architecture", "variational")
+    if architecture == "variational_no_pooling":
+        spike_decoder_params = list(model.spike_decoder.parameters())
+        spike_decoder_param_ids = {id(param) for param in spike_decoder_params}
+        base_params = [param for param in model.parameters() if id(param) not in spike_decoder_param_ids]
+        optimizer = getattr(optim, args.optimizer)(
+            [
+                {"params": base_params, "lr": args.lr},
+                {"params": spike_decoder_params, "lr": getattr(args, "spike_decoder_lr", 0.001)},
+            ],
+            eps=1e-5,
+        )
+    else:
+        optimizer = getattr(optim, args.optimizer)([{'params': model.parameters(), 'lr': args.lr}],eps=1e-5)
     return model, optimizer
 
 def save_checkpoint(epoch, model, optimizer, loss, save_path):
@@ -49,7 +71,7 @@ def load_checkpoint(save_path, model, device):
 def train(model, optimizer, n_epochs, 
           high_train_loader, high_test_loader, 
           low_train_loader, low_test_loader, 
-          save_path, eval_every_n_epoch, ipm_weight):
+          save_path, eval_every_n_epoch):
     
     pbar = tqdm(total=n_epochs)
     
@@ -58,7 +80,7 @@ def train(model, optimizer, n_epochs,
     eval_list_epoch_loss, eval_list_orth_epoch_loss, eval_list_ft_epoch_loss, eval_list_recons_epoch_loss, eval_list_kld_epoch_loss,eval_list_spikes_epoch_loss, eval_list_spike_counts_epoch_loss = [],[],[],[],[],[],[]
     
     for epoch in range(n_epochs):
-        epoch_loss, orth_epoch_loss, ft_epoch_loss, recons_epoch_loss, kld_epoch_loss, spikes_epoch_loss, spike_counts_epoch_loss = train_step(model, optimizer, high_train_loader, low_train_loader, ipm_weight)
+        epoch_loss, orth_epoch_loss, ft_epoch_loss, recons_epoch_loss, kld_epoch_loss, spikes_epoch_loss, spike_counts_epoch_loss = train_step(model, optimizer, high_train_loader, low_train_loader)
         pbar.set_description("Epoch: {} | loss: {:.2f} | orth loss: {:.5f} | FT loss: {:.3f}| recons loss: {:.2f} | kld loss: {:.3f} | Spike loss: {:.3f} | Spike count loss: {:.3f}".format(
                 epoch+1, 
                 np.round(epoch_loss, 2),
@@ -78,7 +100,7 @@ def train(model, optimizer, n_epochs,
         list_spike_counts_epoch_loss.append(spike_counts_epoch_loss)
         
         if epoch == n_epochs - 1 or (epoch + 1) % eval_every_n_epoch == 0:
-            eval_epoch_loss, eval_orth_epoch_loss, eval_ft_epoch_loss, eval_recons_epoch_loss, eval_kld_epoch_loss, eval_spikes_epoch_loss, eval_spike_counts_epoch_loss = eval_step(model, high_test_loader, low_test_loader, ipm_weight)
+            eval_epoch_loss, eval_orth_epoch_loss, eval_ft_epoch_loss, eval_recons_epoch_loss, eval_kld_epoch_loss, eval_spikes_epoch_loss, eval_spike_counts_epoch_loss = eval_step(model, high_test_loader, low_test_loader)
             
             eval_list_epoch_loss.append(eval_epoch_loss)
             eval_list_orth_epoch_loss.append(eval_orth_epoch_loss)
@@ -114,7 +136,7 @@ def train(model, optimizer, n_epochs,
     
     return log_dict, model
         
-def train_step(model, optimizer, high_loader, low_loader, ipm_weight):
+def train_step(model, optimizer, high_loader, low_loader):
     epoch_loss = 0
     orth_epoch_loss = 0
     ft_epoch_loss = 0
@@ -153,7 +175,7 @@ def train_step(model, optimizer, high_loader, low_loader, ipm_weight):
     return epoch_loss, orth_epoch_loss, ft_epoch_loss, recons_epoch_loss, kld_epoch_loss, spikes_epoch_loss, spike_counts_epoch_loss
         
     
-def eval_step(model, high_loader, low_loader, ipm_weight):   
+def eval_step(model, high_loader, low_loader):   
     eval_epoch_loss = 0
     eval_orth_epoch_loss = 0
     eval_ft_epoch_loss = 0

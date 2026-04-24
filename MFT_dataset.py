@@ -6,6 +6,7 @@ import random
 import numpy as np
 import pickle
 import utils
+from pathlib import Path
 
 FT_KEEP_AXES = np.array([0, 4, 5], dtype=np.int64)
 
@@ -93,6 +94,25 @@ def convolve_muscle(data, kernel = None):
         for muscle_idx in range(data.shape[2]):
             convolved_data[sample_idx, :, muscle_idx] = np.convolve(data[sample_idx, :, muscle_idx], kernel, mode='same')
     return convolved_data
+
+def _resolve_position_filepath(filepath):
+    filepath = Path(filepath)
+    if "fatmoth_filtered" in filepath.parts:
+        return Path(str(filepath).replace("fatmoth_filtered", "fatmoth_new"))
+    return filepath
+
+def _resolve_filtered_ft_filepath(filepath):
+    filepath = Path(filepath)
+    if "fatmoth_new" in filepath.parts:
+        return Path(str(filepath).replace("fatmoth_new", "fatmoth_filtered"))
+    return filepath
+
+def _load_scaled_position(filepath):
+    position_path = _resolve_position_filepath(filepath)
+    with open(position_path, "rb") as file:
+        position_dict = pickle.load(file)
+    flower_data = np.asarray(position_dict["flower"])[..., :1] / 100.0
+    return flower_data
 
 class MuscleForcesTorque_dataset(Dataset):
     def __init__(self, muscle_data, FT_data, mean_FT_data, flower_data, moth_id, mass_id, 
@@ -202,7 +222,7 @@ class MuscleForcesTorque_dataset(Dataset):
         
         return sample
 
-def get_fold_MFT(filepath, num_folds, fold_idx, normalize_data=False, batch_size=16, convolution=None, device=torch.device("cpu")):
+def get_fold_MFT(filepath, num_folds, fold_idx, normalize_data=False, batch_size=16, convolution=None, device=torch.device("cpu"), use_filtered_data=True):
     assert(num_folds is not None and num_folds > 0)
     assert(fold_idx >= 0 and fold_idx < num_folds)
 
@@ -210,8 +230,8 @@ def get_fold_MFT(filepath, num_folds, fold_idx, normalize_data=False, batch_size
         data_dict = pickle.load(file)
 
     muscle_Data = data_dict['spikes']
-    ft_data = select_ft_axes(data_dict['ft'])
-    flower_data = data_dict['flower']
+    ft_data = np.asarray(data_dict['ft_filtered']) if use_filtered_data else select_ft_axes(data_dict['ft'])
+    flower_data = _load_scaled_position(filepath)
     moth_id = data_dict['moth_id']
     train_idx, test_idx = kfold_indices(np.arange(len(muscle_Data)), num_folds)[fold_idx]
     MFT_dataset = MuscleForcesTorque_dataset(muscle_data=muscle_Data, 
@@ -225,11 +245,12 @@ def get_fold_MFT(filepath, num_folds, fold_idx, normalize_data=False, batch_size
     return train_loader, test_loader
 
 def get_MFT(filepath_high, filepath_low, batch_size=16, convolution=None, device=torch.device("cpu"), 
-            split=0.8, normalize_ft=True, evaluate=False, perturb=False, data_seed = 0, ft_norm_mode="global"):
+            split=0.8, normalize_ft=True, evaluate=False, perturb=False, data_seed = 0, ft_norm_mode="global",
+            use_filtered_data=True):
     utils.set_seeds(data_seed)
     
-    high_muscle_data, high_ft_data, high_flower_data, high_moth_id, high_mass_id = load_pickle_dataset(filepath_high)
-    low_muscle_data, low_ft_data, low_flower_data, low_moth_id, low_mass_id = load_pickle_dataset(filepath_low)
+    high_muscle_data, high_ft_data, high_flower_data, high_moth_id, high_mass_id = load_pickle_dataset(filepath_high, use_filtered_data=use_filtered_data)
+    low_muscle_data, low_ft_data, low_flower_data, low_moth_id, low_mass_id = load_pickle_dataset(filepath_low, use_filtered_data=use_filtered_data)
     moth_id = np.concatenate([high_moth_id, low_moth_id], axis=0).reshape(-1)  # shape (N,)
     if normalize_ft:
         ft_data = np.concatenate([high_ft_data, low_ft_data], axis=0)
@@ -298,17 +319,28 @@ def get_MFT(filepath_high, filepath_low, batch_size=16, convolution=None, device
     
     return high_train_loader, high_test_loader, low_train_loader, low_test_loader
 
-def load_pickle_dataset(filepath_high):
+def load_pickle_dataset(filepath_high, use_filtered_data=True):
     with open(filepath_high, 'rb') as file:
         data_dict_high = pickle.load(file)
     muscle_data = np.array(data_dict_high['spikes'])
-    ft_data = select_ft_axes(data_dict_high['ft'])
-    flower_data = np.array(data_dict_high['flower'])
-    flower_data[:,:,0] = flower_data[:,:,0] * 0.01
+    if use_filtered_data:
+        ft_source_path = _resolve_filtered_ft_filepath(filepath_high)
+        with open(ft_source_path, 'rb') as file:
+            ft_source_dict = pickle.load(file)
+        if 'ft_filtered' not in ft_source_dict:
+            raise KeyError(f"use_filtered_data=True but 'ft_filtered' is missing from {ft_source_path}")
+        ft_data = np.array(ft_source_dict['ft_filtered'])
+    else:
+        ft_data = select_ft_axes(data_dict_high['ft'])
+    flower_data = _load_scaled_position(filepath_high)
+    
     moth_id = np.array(data_dict_high['moth_id']).reshape(-1,1)
-    mass_list = np.array(data_dict_high['mass'])  # shape (10,)
-    # Get the mass for each sample using moth_id as index
-    mass_per_sample = mass_list[moth_id.flatten()]  # shape (num_samples,)
+    mass_array = np.array(data_dict_high['mass'])
+    if len(mass_array) == len(moth_id):
+        mass_per_sample = mass_array.reshape(-1)
+    else:
+        # Older segmented pickles store one mass per moth id.
+        mass_per_sample = mass_array[moth_id.flatten()]
     mass_id = mass_per_sample.reshape(-1, 1)
 
     return muscle_data, ft_data, flower_data, moth_id, mass_id

@@ -75,7 +75,6 @@ def load_runtime_args():
 
 def gather_loader_outputs(model, loader, mass_label: float):
     shared_dim = model.shared_latent_dim
-    ablated_recons = {dim: [] for dim in range(shared_dim)}
     spike_true = []
     spike_recon = []
     all_shared_zero_recon = []
@@ -87,18 +86,22 @@ def gather_loader_outputs(model, loader, mass_label: float):
             moth_id = batch[6].to(model.device)
             mass = batch[7].to(model.device).float().view(spikes.shape[0], -1)
             cond = model._build_condition(mass, moth_id)
-            spike_latent = model._encode_spike(spikes, cond)
+            if getattr(model, "use_no_pooling", False):
+                spike_latent_seq = model._encode_spike_sequence(spikes, cond)
+                spike_latent = spike_latent_seq.mean(dim=1)
+                spike_recon.append(model.spike_decoder(spike_latent_seq).detach().cpu())
 
-            spike_recon.append(model.spike_decoder(spike_latent, cond).detach().cpu())
+                all_shared_zero = spike_latent_seq.clone()
+                all_shared_zero[:, :, :shared_dim] = 0.0
+                all_shared_zero_recon.append(model.spike_decoder(all_shared_zero).detach().cpu())
+            else:
+                spike_latent = model._encode_spike(spikes, cond)
 
-            all_shared_zero = spike_latent.clone()
-            all_shared_zero[:, :shared_dim] = 0.0
-            all_shared_zero_recon.append(model.spike_decoder(all_shared_zero, cond).detach().cpu())
+                spike_recon.append(model.spike_decoder(spike_latent, cond).detach().cpu())
 
-            for dim in range(shared_dim):
-                ablated_latent = spike_latent.clone()
-                ablated_latent[:, dim] = 0.0
-                ablated_recons[dim].append(model.spike_decoder(ablated_latent, cond).detach().cpu())
+                all_shared_zero = spike_latent.clone()
+                all_shared_zero[:, :shared_dim] = 0.0
+                all_shared_zero_recon.append(model.spike_decoder(all_shared_zero, cond).detach().cpu())
 
             spike_true.append(spikes.detach().cpu())
             split_names.extend(["high" if mass_label > 0.5 else "low"] * spikes.shape[0])
@@ -108,9 +111,6 @@ def gather_loader_outputs(model, loader, mass_label: float):
         "spike_true": torch.cat(spike_true, dim=0).numpy(),
         "spike_recon": torch.cat(spike_recon, dim=0).numpy(),
         "all_shared_zero_recon": torch.cat(all_shared_zero_recon, dim=0).numpy(),
-        "ablated_recons": {
-            str(dim): torch.cat(chunks, dim=0).numpy() for dim, chunks in ablated_recons.items()
-        },
         "mass_labels": np.full((num_items,), mass_label, dtype=np.float32),
         "split_names": split_names,
     }
@@ -124,10 +124,6 @@ def combine_outputs(low_data, high_data):
             [low_data["all_shared_zero_recon"], high_data["all_shared_zero_recon"]],
             axis=0,
         ),
-        "ablated_recons": {
-            dim: np.concatenate([low_data["ablated_recons"][dim], high_data["ablated_recons"][dim]], axis=0)
-            for dim in low_data["ablated_recons"].keys()
-        },
         "mass_labels": np.concatenate([low_data["mass_labels"], high_data["mass_labels"]], axis=0),
         "split_names": low_data["split_names"] + high_data["split_names"],
     }
@@ -154,8 +150,10 @@ def compute_importance_metrics(data, mask=None):
             "num_samples": 0,
             "baseline": None,
             "all_shared_zero": None,
-            "per_dimension": [],
-            "importance_ranking_by_delta_r2": [],
+            "delta_r2": None,
+            "delta_mse": None,
+            "delta_r2_per_muscle": [],
+            "delta_mse_per_muscle": [],
         }
 
     spike_true = data["spike_true"][mask]
@@ -172,100 +170,78 @@ def compute_importance_metrics(data, mask=None):
         for ablated, base in zip(all_shared_zero["spike_mse_per_muscle"], baseline["spike_mse_per_muscle"])
     ]
 
-    per_dimension = []
-    for dim_key in sorted(data["ablated_recons"].keys(), key=int):
-        dim = int(dim_key)
-        ablated_metrics = compute_spike_metrics(spike_true, data["ablated_recons"][dim_key][mask])
-        ablated_metrics["dimension"] = dim
-        ablated_metrics["delta_r2"] = ablated_metrics["spike_r2"] - baseline["spike_r2"]
-        ablated_metrics["delta_mse"] = ablated_metrics["spike_mse"] - baseline["spike_mse"]
-        ablated_metrics["delta_r2_per_muscle"] = [
-            ablated - base
-            for ablated, base in zip(ablated_metrics["spike_r2_per_muscle"], baseline["spike_r2_per_muscle"])
-        ]
-        ablated_metrics["delta_mse_per_muscle"] = [
-            ablated - base
-            for ablated, base in zip(ablated_metrics["spike_mse_per_muscle"], baseline["spike_mse_per_muscle"])
-        ]
-        per_dimension.append(ablated_metrics)
-
-    ranking = [
-        {"dimension": item["dimension"], "delta_r2": item["delta_r2"], "delta_mse": item["delta_mse"]}
-        for item in sorted(per_dimension, key=lambda item: item["delta_r2"])
-    ]
-
     return {
         "num_samples": int(mask.sum()),
         "baseline": baseline,
         "all_shared_zero": all_shared_zero,
-        "per_dimension": per_dimension,
-        "importance_ranking_by_delta_r2": ranking,
+        "delta_r2": all_shared_zero["delta_r2"],
+        "delta_mse": all_shared_zero["delta_mse"],
+        "delta_r2_per_muscle": all_shared_zero["delta_r2_per_muscle"],
+        "delta_mse_per_muscle": all_shared_zero["delta_mse_per_muscle"],
     }
 
 
 def save_importance_summary_plot(output_dir: Path, metrics: dict, prefix: str):
-    per_dimension = metrics["per_dimension"]
-    if not per_dimension:
+    baseline = metrics["baseline"]
+    all_shared_zero = metrics["all_shared_zero"]
+    if baseline is None or all_shared_zero is None:
         return
 
-    dims = [item["dimension"] for item in per_dimension]
-    delta_r2 = [item["delta_r2"] for item in per_dimension]
-    delta_mse = [item["delta_mse"] for item in per_dimension]
-    baseline_r2 = metrics["baseline"]["spike_r2"]
-    baseline_mse = metrics["baseline"]["spike_mse"]
+    labels = ["baseline", "shared=0"]
+    r2_vals = [baseline["spike_r2"], all_shared_zero["spike_r2"]]
+    mse_vals = [baseline["spike_mse"], all_shared_zero["spike_mse"]]
+    delta_r2 = all_shared_zero["delta_r2"]
+    delta_mse = all_shared_zero["delta_mse"]
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4), dpi=200)
-    axes[0].bar(dims, delta_r2, color="tab:blue")
-    axes[0].axhline(0.0, color="black", linewidth=1)
-    axes[0].set_xlabel("Shared latent dimension")
-    axes[0].set_ylabel("Ablated R2 - baseline R2")
-    axes[0].set_title(f"{prefix} spike recon impact on R2\nbaseline={baseline_r2:.3f}")
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4), dpi=200)
+    axes[0].bar(labels, r2_vals, color=["tab:blue", "tab:orange"])
+    axes[0].set_ylabel("Spike R2")
+    axes[0].set_title(f"{prefix} spike R2\nshared-zero delta={delta_r2:.3f}")
 
-    axes[1].bar(dims, delta_mse, color="tab:red")
-    axes[1].axhline(0.0, color="black", linewidth=1)
-    axes[1].set_xlabel("Shared latent dimension")
-    axes[1].set_ylabel("Ablated MSE - baseline MSE")
-    axes[1].set_title(f"{prefix} spike recon impact on MSE\nbaseline={baseline_mse:.4f}")
+    axes[1].bar(labels, mse_vals, color=["tab:green", "tab:red"])
+    axes[1].set_ylabel("Spike MSE")
+    axes[1].set_title(f"{prefix} spike MSE\nshared-zero delta={delta_mse:.4f}")
 
     plt.tight_layout()
-    plt.savefig(output_dir / f"{prefix.lower()}_shared_spike_latent_importance.png")
+    plt.savefig(output_dir / f"{prefix.lower()}_shared_spike_importance.png")
     plt.close(fig)
 
 
 def save_importance_heatmap(output_dir: Path, metrics: dict, prefix: str):
-    per_dimension = metrics["per_dimension"]
-    if not per_dimension:
+    baseline = metrics["baseline"]
+    all_shared_zero = metrics["all_shared_zero"]
+    if baseline is None or all_shared_zero is None:
         return
 
-    delta_r2_matrix = np.asarray([item["delta_r2_per_muscle"] for item in per_dimension], dtype=np.float32)
-    delta_mse_matrix = np.asarray([item["delta_mse_per_muscle"] for item in per_dimension], dtype=np.float32)
-    dims = [item["dimension"] for item in per_dimension]
+    delta_r2_matrix = np.asarray([baseline["spike_r2_per_muscle"], all_shared_zero["spike_r2_per_muscle"]], dtype=np.float32)
+    delta_mse_matrix = np.asarray([baseline["spike_mse_per_muscle"], all_shared_zero["spike_mse_per_muscle"]], dtype=np.float32)
     muscle_labels = [f"M{i + 1}" for i in range(delta_r2_matrix.shape[1])]
+    row_labels = ["baseline", "shared=0"]
 
     fig, axes = plt.subplots(2, 1, figsize=(12, 7), dpi=200)
 
     im0 = axes[0].imshow(delta_r2_matrix, aspect="auto", cmap="coolwarm")
-    axes[0].set_title(f"{prefix} delta R2 by shared dimension and muscle")
+    axes[0].set_title(f"{prefix} spike R2 by condition")
     axes[0].set_xlabel("Muscle")
-    axes[0].set_ylabel("Shared dim")
+    axes[0].set_ylabel("Condition")
     axes[0].set_xticks(np.arange(len(muscle_labels)))
     axes[0].set_xticklabels(muscle_labels)
-    axes[0].set_yticks(np.arange(len(dims)))
-    axes[0].set_yticklabels(dims)
+    axes[0].set_yticks(np.arange(len(row_labels)))
+    axes[0].set_yticklabels(row_labels)
     fig.colorbar(im0, ax=axes[0], shrink=0.9)
 
     im1 = axes[1].imshow(delta_mse_matrix, aspect="auto", cmap="viridis")
-    axes[1].set_title(f"{prefix} delta MSE by shared dimension and muscle")
+    axes[1].set_title(f"{prefix} spike MSE by condition")
     axes[1].set_xlabel("Muscle")
-    axes[1].set_ylabel("Shared dim")
+    axes[1].set_ylabel("Condition")
     axes[1].set_xticks(np.arange(len(muscle_labels)))
     axes[1].set_xticklabels(muscle_labels)
-    axes[1].set_yticks(np.arange(len(dims)))
-    axes[1].set_yticklabels(dims)
+    axes[1].set_yticks(np.arange(len(row_labels)))
+    axes[1].set_yticklabels(row_labels)
     fig.colorbar(im1, ax=axes[1], shrink=0.9)
 
     plt.tight_layout()
-    plt.savefig(output_dir / f"{prefix.lower()}_shared_spike_latent_importance_by_muscle.png")
+    plt.savefig(output_dir / f"{prefix.lower()}_shared_spike_importance_by_muscle.png")
     plt.close(fig)
 
 
@@ -282,6 +258,7 @@ def main():
         evaluate=True,
         data_seed=args.data_seed,
         ft_norm_mode=args.ft_norm_mode,
+        use_filtered_data=True,
     )
 
     covariate_data, _, ft_data, muscle_data, _, _, _, _ = next(iter(high_train_loader))

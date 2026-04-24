@@ -16,8 +16,8 @@ def get_parser():
     parser.add_argument("--device",dest="device",default="cuda:0",help="experiment specified device",required=False,)
     
     # dataset arg
-    parser.add_argument("--filepath_high",dest="filepath_high",default='/hpc/group/tarokhlab/hy190/data/fatmoth/fatmoth_HIGH.pickle',help="dataset path high mass moth",required=False,)
-    parser.add_argument("--filepath_low",dest="filepath_low",default='/hpc/group/tarokhlab/hy190/data/fatmoth/fatmoth_LOW.pickle',help="dataset path of low mass moth",required=False,)
+    parser.add_argument("--filepath_high",dest="filepath_high",default='/hpc/group/tarokhlab/hy190/data/fatmoth_filtered/fatmoth_HIGH.pickle',help="dataset path high mass moth",required=False,)
+    parser.add_argument("--filepath_low",dest="filepath_low",default='/hpc/group/tarokhlab/hy190/data/fatmoth_filtered/fatmoth_LOW.pickle',help="dataset path of low mass moth",required=False,)
     parser.add_argument("--batch_size",dest="batch_size",default=64, type=int, help="save path",required=False)
     parser.add_argument("--convolution",dest="convolution",default='gaussian', help="convolution on muscle",required=False)
     parser.add_argument("--split",dest="split",default=0.8, type=float, help="train-test split",required=False)
@@ -32,25 +32,33 @@ def get_parser():
     parser.add_argument(
         "--ft_predictor_mode",
         dest="ft_predictor_mode",
-        default="shared_shift",
-        choices=["shared_shift", "per_mass", "per_moth_mass"],
+        default="per_moth_mass",
+        choices=["per_moth_mass"],
         help="FT predictor parameterization",
         required=False,
     )
     parser.add_argument(
         "--flower_recon_mode",
         dest="flower_recon_mode",
-        default="sequence",
-        choices=["sequence", "mean"],
+        default="mean",
+        choices=["mean"],
         help="flower reconstruction target type",
         required=False,
     )
     parser.add_argument(
         "--flower_decoder_latent_source",
         dest="flower_decoder_latent_source",
-        default="shared",
-        choices=["shared", "full", "spike_shared"],
+        default="spike_shared",
+        choices=["spike_shared"],
         help="latent source used by the flower decoder",
+        required=False,
+    )
+    parser.add_argument(
+        "--model_architecture",
+        dest="model_architecture",
+        default="variational",
+        choices=["variational", "variational_no_pooling"],
+        help="model architecture variant",
         required=False,
     )
     parser.add_argument(
@@ -64,7 +72,7 @@ def get_parser():
     parser.add_argument(
         "--latent_sweep_percentile_low",
         dest="latent_sweep_percentile_low",
-        default=5.0,
+        default=1.0,
         type=float,
         help="lower percentile for shared latent sweep bounds",
         required=False,
@@ -72,7 +80,7 @@ def get_parser():
     parser.add_argument(
         "--latent_sweep_percentile_high",
         dest="latent_sweep_percentile_high",
-        default=95.0,
+        default=99.0,
         type=float,
         help="upper percentile for shared latent sweep bounds",
         required=False,
@@ -97,8 +105,8 @@ def get_parser():
         help="latent dimension for the spike autoencoder",
         required=False,
     )
-    parser.add_argument("--d_latent_share",dest="d_latent_share",default=3,type=int,required=False)
-    parser.add_argument("--d_latent_treat",dest="d_latent_treat",default=2,type=int,required=False)
+    parser.add_argument("--d_latent_share",dest="d_latent_share",default=2,type=int,required=False)
+    parser.add_argument("--d_latent_treat",dest="d_latent_treat",default=3,type=int,required=False)
     parser.add_argument("--dropout",dest="dropout",default=0.1, type=float, help="dropout p",required=False)
     parser.add_argument("--n_heads",dest="n_heads",default=4,type=int,help="number of heads",required=False,)
     parser.add_argument("--d_ff",dest="d_ff",default=64, type=int, help="transformer mlp dim",required=False)
@@ -107,12 +115,10 @@ def get_parser():
     # training arg
     parser.add_argument("--optimizer",dest="optimizer",default='Adam', required=False)
     parser.add_argument("--lr",dest="lr",default=0.001, type=float, required=False)
+    parser.add_argument("--spike_decoder_lr",dest="spike_decoder_lr",default=0.001, type=float, required=False)
     parser.add_argument("--save_path",dest="save_path",default='./exp_all_variational', help="save path",required=False)
     parser.add_argument("--n_epochs",dest="n_epochs",default=200, type=int, help="training epoch",required=False)
     parser.add_argument("--eval_every_n_epoch",dest="eval_every_n_epoch",default=5, type=int, help="evaluate every n epoch",required=False)
-    parser.add_argument("--ipm_weight",dest="ipm_weight",default=1.0,type=float,help="ipm_weight",required=False)
-    
-    
     return parser
 
 def make_directory(savepath):

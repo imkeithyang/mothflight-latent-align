@@ -9,7 +9,6 @@ import MFT_dataset
 import utils
 import json
 import numpy as np
-import random
 import torch
 
 import matplotlib
@@ -22,6 +21,7 @@ args = utils.get_parser().parse_args()
 if isinstance(args.device, str) and args.device.startswith("cuda") and not torch.cuda.is_available():
     args.device = "cpu"
 args.save_path += str(args.seed)
+args.save_path = os.path.abspath(args.save_path)
 utils.make_directory(args.save_path)
 
 high_train_loader, high_test_loader, low_train_loader, low_test_loader = MFT_dataset.get_MFT(filepath_high=args.filepath_high,
@@ -122,11 +122,13 @@ def _run_auto_eval(args):
         "--ft_norm_mode",
         str(args.ft_norm_mode),
         "--ft_predictor_mode",
-        str(getattr(args, "ft_predictor_mode", "shared_shift")),
+        str(getattr(args, "ft_predictor_mode", "per_moth_mass")),
         "--flower_recon_mode",
-        str(getattr(args, "flower_recon_mode", "sequence")),
+        str(getattr(args, "flower_recon_mode", "mean")),
         "--flower_decoder_latent_source",
-        str(getattr(args, "flower_decoder_latent_source", "shared")),
+        str(getattr(args, "flower_decoder_latent_source", "spike_shared")),
+        "--model_architecture",
+        str(getattr(args, "model_architecture", "variational")),
     ]
     script_dir = os.path.dirname(os.path.abspath(__file__))
     print(f"Running automatic evaluation: {' '.join(eval_cmd)}")
@@ -178,11 +180,13 @@ def _run_shared_importance_eval(args):
         "--ft_norm_mode",
         str(args.ft_norm_mode),
         "--ft_predictor_mode",
-        str(getattr(args, "ft_predictor_mode", "shared_shift")),
+        str(getattr(args, "ft_predictor_mode", "per_moth_mass")),
         "--flower_recon_mode",
-        str(getattr(args, "flower_recon_mode", "sequence")),
+        str(getattr(args, "flower_recon_mode", "mean")),
         "--flower_decoder_latent_source",
-        str(getattr(args, "flower_decoder_latent_source", "shared")),
+        str(getattr(args, "flower_decoder_latent_source", "spike_shared")),
+        "--model_architecture",
+        str(getattr(args, "model_architecture", "variational")),
     ]
     script_dir = os.path.dirname(os.path.abspath(__file__))
     print(f"Running shared latent importance evaluation: {' '.join(importance_cmd)}")
@@ -234,11 +238,13 @@ def _run_shared_latent_sweep_eval(args):
         "--ft_norm_mode",
         str(args.ft_norm_mode),
         "--ft_predictor_mode",
-        str(getattr(args, "ft_predictor_mode", "shared_shift")),
+        str(getattr(args, "ft_predictor_mode", "per_moth_mass")),
         "--flower_recon_mode",
-        str(getattr(args, "flower_recon_mode", "sequence")),
+        str(getattr(args, "flower_recon_mode", "mean")),
         "--flower_decoder_latent_source",
-        str(getattr(args, "flower_decoder_latent_source", "shared")),
+        str(getattr(args, "flower_decoder_latent_source", "spike_shared")),
+        "--model_architecture",
+        str(getattr(args, "model_architecture", "variational")),
         "--latent_sweep_steps",
         str(getattr(args, "latent_sweep_steps", 11)),
         "--latent_sweep_percentile_low",
@@ -258,23 +264,19 @@ log_dict = {}
 log_dict, model = model_trainer.train(model, optimizer, 
                     args.n_epochs, 
                     high_train_loader, high_test_loader, low_train_loader, low_test_loader,
-                    args.save_path, args.eval_every_n_epoch, args.ipm_weight)
+                    args.save_path, args.eval_every_n_epoch)
 
 # model = model_trainer.load_checkpoint(args.save_path, model, args.device)
 # model = model_trainer.train_cattn(model, optimizer,
 #                     int(0.5 * args.n_epochs),
 #                     high_train_loader, high_test_loader, low_train_loader, low_test_loader,
-#                     args.save_path, args.eval_every_n_epoch, args.ipm_weight)
 
 # final evaluation
 best_model = model_trainer.load_checkpoint(args.save_path, model, args.device)
-eval_loss, eval_ipm_loss, eval_ft_loss, eval_recons_loss, eval_kld_loss, eval_spikes_loss, eval_spikes_count_loss = model_trainer.eval_step(best_model, high_test_loader, low_test_loader, args.ipm_weight)
-
-# attns, attns_treat = model_trainer.extract_attn(best_model, optimizer, high_train_loader, low_train_loader, args.ipm_weight)
-
+eval_loss, eval_orth_loss, eval_ft_loss, eval_recons_loss, eval_kld_loss, eval_spikes_loss, eval_spikes_count_loss = model_trainer.eval_step(best_model, high_test_loader, low_test_loader)
 
 log_dict['final_eval_loss'] = eval_loss
-log_dict['final_eval_ipm_loss'] = eval_ipm_loss
+log_dict['final_eval_orth_loss'] = eval_orth_loss
 log_dict['final_eval_ft_loss'] = eval_ft_loss
 log_dict['final_eval_recons_loss'] = eval_recons_loss
 log_dict['final_eval_kld_loss'] = eval_kld_loss

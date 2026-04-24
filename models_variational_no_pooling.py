@@ -17,7 +17,7 @@ class MLPModel(nn.Module):
     ):
         super().__init__()
         if activation is None:
-            activation = nn.LeakyReLU()
+            activation = nn.ReLU()
         layers = []
         prev = input_size
         for hidden in hidden_sizes:
@@ -49,20 +49,6 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x + self.pe[:, : x.size(1)])
 
 
-class AttentionPooling(nn.Module):
-    def __init__(self, d_model: int):
-        super().__init__()
-        self.query = nn.Parameter(torch.randn(1, d_model))
-        self.linear = nn.Linear(d_model, d_model)
-        self.tanh = nn.Tanh()
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        q = self.query.expand(x.size(0), -1).unsqueeze(1)
-        k = self.tanh(self.linear(x))
-        attn = torch.softmax(torch.bmm(q, k.transpose(1, 2)), dim=-1)
-        return torch.bmm(attn, x).squeeze(1)
-
-
 class SequenceEncoder(nn.Module):
     def __init__(
         self,
@@ -87,13 +73,11 @@ class SequenceEncoder(nn.Module):
             norm_first=True,
         )
         self.transformer = nn.TransformerEncoder(enc_layer, num_layers=num_layers)
-        self.pool = AttentionPooling(d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.input_proj(x) * math.sqrt(self.d_model)
         x = self.pos_encoder(x)
-        x = self.transformer(x)
-        return self.pool(x)
+        return self.transformer(x)
 
 
 class SequenceDecoder(nn.Module):
@@ -103,24 +87,33 @@ class SequenceDecoder(nn.Module):
         seq_len: int,
         output_dim: int,
         hidden_sizes,
-        cond_dim: int = 0,
         dropout: float = 0.1,
+        d_model: int = 64,
+        nhead: int = 4,
+        d_ff: int = 128,
+        num_layers: int = 2,
     ):
         super().__init__()
         self.seq_len = seq_len
         self.output_dim = output_dim
-        self.net = MLPModel(
-            input_size=latent_dim + cond_dim,
-            hidden_sizes=hidden_sizes,
-            output_size=seq_len * output_dim,
+        self.pos_encoder = PositionalEncoding(d_model, dropout, max_len=seq_len)
+        dec_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=d_ff,
             dropout=dropout,
+            batch_first=True,
+            norm_first=True,
         )
+        self.transformer = nn.TransformerEncoder(dec_layer, num_layers=num_layers)
+        self.output_proj = nn.Linear(d_model, output_dim)
 
-    def forward(self, latent: torch.Tensor, cond: Optional[torch.Tensor] = None) -> torch.Tensor:
-        if cond is not None:
-            latent = torch.cat([latent, cond], dim=-1)
-        out = self.net(latent)
-        return out.view(latent.shape[0], self.seq_len, self.output_dim)
+    def forward(self, latent: torch.Tensor) -> torch.Tensor:
+        if latent.dim() != 3:
+            raise ValueError(f"Unexpected latent rank {latent.dim()} for SequenceDecoder")
+        latent = self.pos_encoder(latent)
+        latent = self.transformer(latent)
+        return self.output_proj(latent)
 
 
 class VectorDecoder(nn.Module):
@@ -184,6 +177,7 @@ class Transformer_TAR_net(nn.Module):
         self.ft_predictor_mode = ft_predictor_mode
         self.flower_recon_mode = flower_recon_mode
         self.flower_decoder_latent_source = flower_decoder_latent_source
+        self.use_no_pooling = True
         if self.ft_predictor_mode != "per_moth_mass":
             raise ValueError(f"Unknown ft_predictor_mode: {self.ft_predictor_mode}")
         if self.flower_recon_mode != "mean":
@@ -198,7 +192,7 @@ class Transformer_TAR_net(nn.Module):
         self.spike_private_dim = d_latent_treat
         if self.spike_private_dim < 0:
             raise ValueError("spike_private_dim must be at least 0")
-        self.spike_latent_dim = self.mass_latent_dim + self.spike_private_dim + self.shared_latent_dim
+        self.spike_latent_dim = self.mass_latent_dim + self.shared_latent_dim + self.spike_private_dim
 
         self.num_moths = num_moths
         self.moth_embedding = nn.Embedding(num_moths, moth_embed_dim).to(self.device)
@@ -206,20 +200,13 @@ class Transformer_TAR_net(nn.Module):
         self.spike_encoder = SequenceEncoder(
             input_dim=self.spike_feature_dim,
             seq_len=spike_dims[0],
-            d_model=d_model,
+            d_model=self.spike_latent_dim,
             nhead=n_heads,
             d_ff=d_ff,
             num_layers=e_layers,
             dropout=dropout,
         ).to(self.device)
-        self.spike_latent_head = MLPModel(
-            input_size=d_model + self.cond_dim,
-            hidden_sizes=[d_model, d_model],
-            output_size=self.spike_latent_dim,
-            dropout=dropout,
-        ).to(self.device)
-
-        decoder_hidden = [2 * d_model, 2 * d_model]
+        decoder_hidden = [2 * self.spike_latent_dim, 2 * self.spike_latent_dim]
         self.flower_mean_decoder = None
         self.flower_mean_decoder = VectorDecoder(
             latent_dim=self.shared_latent_dim,
@@ -233,8 +220,11 @@ class Transformer_TAR_net(nn.Module):
             seq_len=spike_dims[0],
             output_dim=self.spike_feature_dim,
             hidden_sizes=decoder_hidden,
-            cond_dim=self.cond_dim,
             dropout=dropout,
+            d_model=self.spike_latent_dim,
+            nhead=n_heads,
+            d_ff=d_ff,
+            num_layers=e_layers,
         ).to(self.device)
 
         self.ft_predictor_low_by_moth = nn.ModuleList(
@@ -243,7 +233,7 @@ class Transformer_TAR_net(nn.Module):
         self.ft_predictor_high_by_moth = nn.ModuleList(
             [nn.Linear(self.shared_latent_dim, self.ft_dim) for _ in range(self.num_moths)]
         ).to(self.device)
-        self.spike_count_predictor = nn.Linear(self.spike_latent_dim, self.spike_feature_dim).to(self.device)
+        self.spike_count_predictor = nn.Linear(self.spike_latent_dim + self.cond_dim, self.spike_feature_dim).to(self.device)
         self.poisson_loss = nn.PoissonNLLLoss(log_input=True, full=True, reduction="mean")
 
     def _build_condition(self, mass: torch.Tensor, moth_ids: Optional[torch.Tensor]) -> torch.Tensor:
@@ -261,8 +251,12 @@ class Transformer_TAR_net(nn.Module):
             raise ValueError(f"Unexpected batch length {len(batch)}")
         return flower, ft_mean, spikes, spike_counts, moth_ids, mass
 
+    def _encode_spike_sequence(self, spike: torch.Tensor, cond: torch.Tensor) -> torch.Tensor:
+        del cond
+        return self.spike_encoder(spike)
+
     def _encode_spike(self, spike: torch.Tensor, cond: torch.Tensor) -> torch.Tensor:
-        return self.spike_latent_head(torch.cat([self.spike_encoder(spike), cond], dim=-1))
+        return self._encode_spike_sequence(spike, cond).mean(dim=1)
 
     def _init_spike_latent(self, mass: torch.Tensor) -> torch.Tensor:
         mass = mass.float().view(mass.shape[0], -1)
@@ -278,6 +272,13 @@ class Transformer_TAR_net(nn.Module):
     def _replace_shared_latent(self, spike_latent: torch.Tensor, flower_latent: torch.Tensor) -> torch.Tensor:
         cross_spike_latent = spike_latent.clone()
         cross_spike_latent[:, : self.shared_latent_dim] = flower_latent
+        return cross_spike_latent
+
+    def _replace_shared_latent_seq(self, spike_latent_seq: torch.Tensor, flower_latent: torch.Tensor) -> torch.Tensor:
+        cross_spike_latent = spike_latent_seq.clone()
+        cross_spike_latent[:, :, : self.shared_latent_dim] = flower_latent.unsqueeze(1).expand(
+            -1, spike_latent_seq.shape[1], -1
+        )
         return cross_spike_latent
 
     def _predict_ft_per_moth_mass(self, flower_latent: torch.Tensor, mass: torch.Tensor, moth_ids: Optional[torch.Tensor]) -> torch.Tensor:
@@ -336,8 +337,8 @@ class Transformer_TAR_net(nn.Module):
     def _decode_pair(self, flower_latent: torch.Tensor, spike_latent: torch.Tensor, cond: torch.Tensor):
         cross_spike_latent = self._replace_shared_latent(spike_latent, flower_latent)
         flower_recon_mean, flower_recon = self._decode_flower(spike_latent[:, : self.shared_latent_dim])
-        spike_recon = self.spike_decoder(spike_latent, cond)
-        cross_spike_recon = self.spike_decoder(cross_spike_latent, cond)
+        spike_recon = self.spike_decoder(spike_latent)
+        cross_spike_recon = self.spike_decoder(cross_spike_latent)
         return (
             flower_latent,
             spike_latent,
@@ -359,24 +360,21 @@ class Transformer_TAR_net(nn.Module):
         mass_target = mass_target.to(self.device).float().view(mass.shape[0], -1)
 
         cond = self._build_condition(mass, moth_ids)
-        spike_latent = self._encode_spike(spikes, cond)
-        flower_latent = spike_latent[:, : self.shared_latent_dim]
+        spike_latent_seq = self._encode_spike_sequence(spikes, cond)
+        spike_latent_mean = spike_latent_seq.mean(dim=1)
+        spike_latent = spike_latent_mean
+        flower_latent = spike_latent_mean[:, : self.shared_latent_dim]
         mass_input = mass.float().view(mass.shape[0], -1)
-        (
-            flower_latent,
-            spike_latent,
-            cross_spike_latent,
-            flower_recon_mean,
-            flower_recon,
-            spike_recon,
-            cross_spike_recon,
-        ) = self._decode_pair(
-            flower_latent, spike_latent, cond
-        )
+        flower_recon_mean, flower_recon = self._decode_flower(flower_latent)
+        spike_recon = self.spike_decoder(spike_latent_seq)
+        cross_spike_latent_seq = self._replace_shared_latent_seq(spike_latent_seq, flower_latent)
+        cross_spike_recon = self.spike_decoder(cross_spike_latent_seq)
         ft_latent = flower_latent
         ft_pred = self._predict_ft(ft_latent, mass_input, moth_ids)
-        spike_counts_pred = self.spike_count_predictor(spike_latent)
-        spike_counts_pred_from_flower = self.spike_count_predictor(cross_spike_latent)
+        spike_counts_pred = self.spike_count_predictor(torch.cat([spike_latent, cond], dim=-1))
+        spike_counts_pred_from_flower = self.spike_count_predictor(
+            torch.cat([cross_spike_latent_seq.mean(dim=1), cond], dim=-1)
+        )
         flower_target = self._flower_target(flower)
         flower_recon_target = flower_recon_mean
         flower_recon_scale = 1.0
@@ -401,6 +399,7 @@ class Transformer_TAR_net(nn.Module):
         outputs = {
             "flower_latent": flower_latent,
             "spike_latent": spike_latent,
+            "spike_latent_seq": spike_latent_seq,
             "flower_recon_mean": flower_recon_mean,
             "flower_recon": flower_recon,
             "spike_recon": spike_recon,
@@ -432,23 +431,18 @@ class Transformer_TAR_net(nn.Module):
         moth_ids = moth_ids.to(self.device) if moth_ids is not None else None
         cond = self._build_condition(mass, moth_ids)
         if covariates_treat is not None:
-            spike_latent = self._encode_spike(covariates_treat.to(self.device), cond)
+            spike_latent_seq = self._encode_spike_sequence(covariates_treat.to(self.device), cond)
         else:
-            spike_latent = self._encode_spike(covariates.to(self.device), cond)
-        flower_latent = spike_latent[:, : self.shared_latent_dim]
-        (
-            flower_latent,
-            spike_latent,
-            cross_spike_latent,
-            flower_recon_mean,
-            flower_recon,
-            spike_recon,
-            cross_spike_recon,
-        ) = self._decode_pair(
-            flower_latent, spike_latent, cond
-        )
+            spike_latent_seq = self._encode_spike_sequence(covariates.to(self.device), cond)
+        spike_latent_mean = spike_latent_seq.mean(dim=1)
+        spike_latent = spike_latent_mean
+        flower_latent = spike_latent_mean[:, : self.shared_latent_dim]
+        flower_recon_mean, flower_recon = self._decode_flower(flower_latent)
+        spike_recon = self.spike_decoder(spike_latent_seq)
+        cross_spike_latent_seq = self._replace_shared_latent_seq(spike_latent_seq, flower_latent)
+        cross_spike_recon = self.spike_decoder(cross_spike_latent_seq)
         ft_pred = self._predict_ft(flower_latent, mass, moth_ids)
-        spike_counts_pred = self.spike_count_predictor(spike_latent)
+        spike_counts_pred = self.spike_count_predictor(torch.cat([spike_latent, cond], dim=-1))
         return {
             "flower_recon": flower_recon,
             "flower_recon_mean": flower_recon_mean,
@@ -458,4 +452,5 @@ class Transformer_TAR_net(nn.Module):
             "spike_counts_pred": spike_counts_pred,
             "flower_latent": flower_latent,
             "spike_latent": spike_latent,
+            "spike_latent_seq": spike_latent_seq,
         }

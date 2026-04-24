@@ -14,6 +14,18 @@ FT_LABELS = ["Fx", "Ty", "Tz"]
 FLOWER_LABELS = ["Position", "Velocity"]
 
 
+def get_flower_labels(flower_prediction_target: str):
+    if flower_prediction_target == "position":
+        return ["Position"]
+    return FLOWER_LABELS
+
+
+def select_flower_channels(array, flower_prediction_target: str):
+    if flower_prediction_target == "position":
+        return array[..., :1]
+    return array
+
+
 def r2_score_np(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
@@ -54,8 +66,6 @@ def gather_loader_outputs(model, loader, mass_label: float):
     flower_true_mean = []
     flower_recon = []
     flower_recon_mean = []
-    cross_flower_recon = []
-    cross_flower_recon_mean = []
     spike_true = []
     spike_recon = []
     cross_spike_recon = []
@@ -64,6 +74,7 @@ def gather_loader_outputs(model, loader, mass_label: float):
     mass_logits = []
     moth_ids = []
     split_names = []
+    flower_prediction_target = getattr(model, "flower_prediction_target", "position")
 
     with torch.no_grad():
         for batch in loader:
@@ -75,12 +86,10 @@ def gather_loader_outputs(model, loader, mass_label: float):
 
             outputs = model.forward(covariates, spikes, mass, moth_id)
 
-            flower_true.append(covariates.detach().cpu())
-            flower_true_mean.append(covariates.mean(dim=1).detach().cpu())
+            flower_true.append(select_flower_channels(covariates.detach().cpu(), flower_prediction_target))
+            flower_true_mean.append(select_flower_channels(covariates.mean(dim=1).detach().cpu(), flower_prediction_target))
             flower_recon.append(outputs["flower_recon"].detach().cpu())
             flower_recon_mean.append(outputs["flower_recon_mean"].detach().cpu())
-            cross_flower_recon.append(outputs["cross_flower_recon"].detach().cpu())
-            cross_flower_recon_mean.append(outputs["cross_flower_recon_mean"].detach().cpu())
             spike_true.append(spikes.detach().cpu())
             spike_recon.append(outputs["spike_recon"].detach().cpu())
             cross_spike_recon.append(outputs["cross_spike_recon"].detach().cpu())
@@ -98,8 +107,6 @@ def gather_loader_outputs(model, loader, mass_label: float):
         "flower_true_mean": torch.cat(flower_true_mean, dim=0).numpy(),
         "flower_recon": torch.cat(flower_recon, dim=0).numpy(),
         "flower_recon_mean": torch.cat(flower_recon_mean, dim=0).numpy(),
-        "cross_flower_recon": torch.cat(cross_flower_recon, dim=0).numpy(),
-        "cross_flower_recon_mean": torch.cat(cross_flower_recon_mean, dim=0).numpy(),
         "spike_true": torch.cat(spike_true, dim=0).numpy(),
         "spike_recon": torch.cat(spike_recon, dim=0).numpy(),
         "cross_spike_recon": torch.cat(cross_spike_recon, dim=0).numpy(),
@@ -119,8 +126,6 @@ def combine_outputs(low_data, high_data):
         "flower_true_mean",
         "flower_recon",
         "flower_recon_mean",
-        "cross_flower_recon",
-        "cross_flower_recon_mean",
         "spike_true",
         "spike_recon",
         "cross_spike_recon",
@@ -135,7 +140,9 @@ def combine_outputs(low_data, high_data):
     return combined
 
 
-def compute_metrics(data, mask=None, flower_recon_mode: str = "sequence"):
+def compute_metrics(data, mask=None, flower_recon_mode: str = "mean", flower_labels=None):
+    if flower_labels is None:
+        flower_labels = FLOWER_LABELS
     total_items = data["mass_labels"].shape[0]
     if mask is None:
         mask = np.ones(total_items, dtype=bool)
@@ -152,19 +159,11 @@ def compute_metrics(data, mask=None, flower_recon_mode: str = "sequence"):
             "spike_r2": None,
             "cross_spike_r2": None,
             "flower_r2": None,
-            "cross_flower_r2": None,
-            "flower_sequence_r2": None,
-            "cross_flower_sequence_r2": None,
             "flower_mean_r2": None,
-            "cross_flower_mean_r2": None,
             "ft_r2": None,
             "ft_r2_per_channel": [None] * len(FT_LABELS),
-            "flower_r2_per_channel": [None] * len(FLOWER_LABELS),
-            "cross_flower_r2_per_channel": [None] * len(FLOWER_LABELS),
-            "flower_sequence_r2_per_channel": [None] * len(FLOWER_LABELS),
-            "cross_flower_sequence_r2_per_channel": [None] * len(FLOWER_LABELS),
-            "flower_mean_r2_per_channel": [None] * len(FLOWER_LABELS),
-            "cross_flower_mean_r2_per_channel": [None] * len(FLOWER_LABELS),
+            "flower_r2_per_channel": [None] * len(flower_labels),
+            "flower_mean_r2_per_channel": [None] * len(flower_labels),
         }
 
     mass_probs = safe_sigmoid(data["mass_logits"][mask].reshape(-1))
@@ -175,28 +174,12 @@ def compute_metrics(data, mask=None, flower_recon_mode: str = "sequence"):
     ft_pred = data["ft_pred"][mask]
     flower_true = data["flower_true"][mask]
     flower_pred = data["flower_recon"][mask]
-    cross_flower_pred = data["cross_flower_recon"][mask]
     flower_true_mean = data["flower_true_mean"][mask]
     flower_pred_mean = data["flower_recon_mean"][mask]
-    cross_flower_pred_mean = data["cross_flower_recon_mean"][mask]
-    flower_sequence_r2 = r2_score_flat(flower_true, flower_pred)
-    cross_flower_sequence_r2 = r2_score_flat(flower_true, cross_flower_pred)
-    flower_sequence_r2_per_channel = per_channel_r2(flower_true, flower_pred)
-    cross_flower_sequence_r2_per_channel = per_channel_r2(flower_true, cross_flower_pred)
     flower_mean_r2 = r2_score_flat(flower_true_mean, flower_pred_mean)
-    cross_flower_mean_r2 = r2_score_flat(flower_true_mean, cross_flower_pred_mean)
     flower_mean_r2_per_channel = per_channel_r2(flower_true_mean, flower_pred_mean)
-    cross_flower_mean_r2_per_channel = per_channel_r2(flower_true_mean, cross_flower_pred_mean)
-    if flower_recon_mode == "mean":
-        flower_r2 = flower_mean_r2
-        cross_flower_r2 = cross_flower_mean_r2
-        flower_r2_per_channel = flower_mean_r2_per_channel
-        cross_flower_r2_per_channel = cross_flower_mean_r2_per_channel
-    else:
-        flower_r2 = flower_sequence_r2
-        cross_flower_r2 = cross_flower_sequence_r2
-        flower_r2_per_channel = flower_sequence_r2_per_channel
-        cross_flower_r2_per_channel = cross_flower_sequence_r2_per_channel
+    flower_r2 = flower_mean_r2
+    flower_r2_per_channel = flower_mean_r2_per_channel
 
     return {
         "num_samples": num_items,
@@ -206,19 +189,11 @@ def compute_metrics(data, mask=None, flower_recon_mode: str = "sequence"):
         "spike_r2": r2_score_flat(data["spike_true"][mask], data["spike_recon"][mask]),
         "cross_spike_r2": r2_score_flat(data["spike_true"][mask], data["cross_spike_recon"][mask]),
         "flower_r2": flower_r2,
-        "cross_flower_r2": cross_flower_r2,
-        "flower_sequence_r2": flower_sequence_r2,
-        "cross_flower_sequence_r2": cross_flower_sequence_r2,
         "flower_mean_r2": flower_mean_r2,
-        "cross_flower_mean_r2": cross_flower_mean_r2,
         "ft_r2": r2_score_flat(ft_true, ft_pred),
         "ft_r2_per_channel": per_channel_r2(ft_true, ft_pred),
         "flower_r2_per_channel": flower_r2_per_channel,
-        "cross_flower_r2_per_channel": cross_flower_r2_per_channel,
-        "flower_sequence_r2_per_channel": flower_sequence_r2_per_channel,
-        "cross_flower_sequence_r2_per_channel": cross_flower_sequence_r2_per_channel,
         "flower_mean_r2_per_channel": flower_mean_r2_per_channel,
-        "cross_flower_mean_r2_per_channel": cross_flower_mean_r2_per_channel,
     }
 
 
@@ -305,36 +280,6 @@ def save_spike_examples_by_moth(
         plt.close(fig)
 
 
-def save_flower_examples(
-    output_dir: Path,
-    flower_true_seq: np.ndarray,
-    flower_pred_seq: np.ndarray,
-    split_names,
-    filename: str,
-    recon_label: str,
-):
-    example_indices = [0, 1, len(split_names) // 2, min(len(split_names) // 2 + 1, len(split_names) - 1)]
-    fig, axes = plt.subplots(len(example_indices), 2, figsize=(12, 10), dpi=200, sharex=True)
-    for row, idx in enumerate(example_indices):
-        pos_ax = axes[row, 0]
-        vel_ax = axes[row, 1]
-        t = np.arange(flower_true_seq.shape[1])
-        pos_ax.plot(t, flower_true_seq[idx, :, 0], label="true pos", color="tab:blue")
-        pos_ax.plot(t, flower_pred_seq[idx, :, 0], linestyle="--", label="pred pos", color="tab:blue")
-        vel_ax.plot(t, flower_true_seq[idx, :, 1], label="true vel", color="tab:orange")
-        vel_ax.plot(t, flower_pred_seq[idx, :, 1], linestyle="--", label="pred vel", color="tab:orange")
-        pos_ax.set_title(f"{split_names[idx]} {recon_label} flower #{idx} position")
-        vel_ax.set_title(f"{split_names[idx]} {recon_label} flower #{idx} velocity")
-        pos_ax.set_ylabel("Value")
-        vel_ax.set_ylabel("Value")
-        vel_ax.set_xlabel("Timestep")
-    axes[0, 0].legend(loc="upper right")
-    axes[0, 1].legend(loc="upper right")
-    plt.tight_layout()
-    plt.savefig(output_dir / filename)
-    plt.close(fig)
-
-
 def save_flower_mean_scatter(
     output_dir: Path,
     flower_true_mean: np.ndarray,
@@ -342,10 +287,11 @@ def save_flower_mean_scatter(
     filename: str,
     title_prefix: str,
     r2_per_channel,
+    flower_labels,
 ):
-    fig, axes = plt.subplots(1, len(FLOWER_LABELS), figsize=(10, 4), dpi=200)
+    fig, axes = plt.subplots(1, len(flower_labels), figsize=(5 * len(flower_labels), 4), dpi=200)
     axes = np.atleast_1d(axes)
-    for col, label in enumerate(FLOWER_LABELS):
+    for col, label in enumerate(flower_labels):
         ax = axes[col]
         true_vals = flower_true_mean[:, col]
         pred_vals = flower_pred_mean[:, col]
@@ -400,7 +346,6 @@ def save_by_moth_summary(output_dir: Path, by_moth_metrics: dict):
         ("spike_r2", "Spike R2"),
         ("cross_spike_r2", "Cross Spike R2"),
         ("flower_r2", "Flower R2"),
-        ("cross_flower_r2", "Cross Flower R2"),
         ("ft_r2", "FT R2"),
     ]
 
@@ -446,6 +391,7 @@ def main():
         evaluate=True,
         data_seed=args.data_seed,
         ft_norm_mode=args.ft_norm_mode,
+        use_filtered_data=True,
     )
 
     covariate_data, _, ft_data, muscle_data, _, _, _, _ = next(iter(high_train_loader))
@@ -457,7 +403,9 @@ def main():
     model, _ = model_trainer.get_model_and_optimizer(args)
     model = model_trainer.load_checkpoint(args.save_path, model, args.device)
     model.eval()
-    flower_recon_mode = getattr(model, "flower_recon_mode", getattr(args, "flower_recon_mode", "sequence"))
+    flower_recon_mode = "mean"
+    flower_prediction_target = getattr(model, "flower_prediction_target", getattr(args, "flower_prediction_target", "position"))
+    flower_labels = get_flower_labels(flower_prediction_target)
 
     low_data = gather_loader_outputs(model, low_test_loader, mass_label=0.0)
     high_data = gather_loader_outputs(model, high_test_loader, mass_label=1.0)
@@ -473,17 +421,19 @@ def main():
     for moth_id in unique_moths:
         moth_mask = combined["moth_ids"].reshape(-1) == moth_id
         by_moth_metrics[str(moth_id)] = {
-            "overall": compute_metrics(combined, moth_mask, flower_recon_mode),
-            "low": compute_metrics(combined, moth_mask & low_mask, flower_recon_mode),
-            "high": compute_metrics(combined, moth_mask & high_mask, flower_recon_mode),
+            "overall": compute_metrics(combined, moth_mask, flower_recon_mode, flower_labels),
+            "low": compute_metrics(combined, moth_mask & low_mask, flower_recon_mode, flower_labels),
+            "high": compute_metrics(combined, moth_mask & high_mask, flower_recon_mode, flower_labels),
         }
 
     metrics = {
         "flower_recon_mode": flower_recon_mode,
-        "overall": compute_metrics(combined, flower_recon_mode=flower_recon_mode),
+        "flower_prediction_target": flower_prediction_target,
+        "flower_labels": flower_labels,
+        "overall": compute_metrics(combined, flower_recon_mode=flower_recon_mode, flower_labels=flower_labels),
         "by_mass": {
-            "low": compute_metrics(combined, low_mask, flower_recon_mode),
-            "high": compute_metrics(combined, high_mask, flower_recon_mode),
+            "low": compute_metrics(combined, low_mask, flower_recon_mode, flower_labels),
+            "high": compute_metrics(combined, high_mask, flower_recon_mode, flower_labels),
         },
         "by_moth": by_moth_metrics,
         "num_test_samples": int(combined["ft_true"].shape[0]),
@@ -520,40 +470,15 @@ def main():
         combined["split_names"],
         combined["moth_ids"],
     )
-    if flower_recon_mode == "mean":
-        save_flower_mean_scatter(
-            output_dir,
-            combined["flower_true_mean"],
-            combined["flower_recon_mean"],
-            "flower_mean_prediction_scatter.png",
-            "Overall Mean Flower Recon",
-            metrics["overall"]["flower_mean_r2_per_channel"],
-        )
-        save_flower_mean_scatter(
-            output_dir,
-            combined["flower_true_mean"],
-            combined["cross_flower_recon_mean"],
-            "cross_flower_mean_prediction_scatter.png",
-            "Overall Mean Cross Flower Recon",
-            metrics["overall"]["cross_flower_mean_r2_per_channel"],
-        )
-    else:
-        save_flower_examples(
-            output_dir,
-            combined["flower_true"],
-            combined["flower_recon"],
-            combined["split_names"],
-            "flower_reconstruction_examples.png",
-            "recon",
-        )
-        save_flower_examples(
-            output_dir,
-            combined["flower_true"],
-            combined["cross_flower_recon"],
-            combined["split_names"],
-            "cross_flower_reconstruction_examples.png",
-            "cross-recon",
-        )
+    save_flower_mean_scatter(
+        output_dir,
+        combined["flower_true_mean"],
+        combined["flower_recon_mean"],
+        "flower_mean_prediction_scatter.png",
+        "Overall Mean Flower Recon",
+        metrics["overall"]["flower_mean_r2_per_channel"],
+        flower_labels,
+    )
     save_ft_scatter(
         output_dir,
         combined["ft_true"],
